@@ -58,5 +58,21 @@ describe('Blog app', () => {
         const blog = await page.getByTestId('blog')
         await expect(blog).toContainText(title)
     })
+
+    describe('a blog has been created', () => {
+        beforeEach(async ({page}) => {
+            const title = 'This is an example blog'
+            const author = 'Aayush Sinha'
+            const url = 'https://example.com'
+            await createBlog(page, title, author, url)
+        })
+
+        test('blog can be liked', async ({page}) => {
+            await page.getByRole('button', { name: 'view' }).click()
+            await page.getByRole('button', { name: 'like' }).click()
+            expect(page.getByText('likes: 1like')).toBeVisible()
+        })
+    })
+
   })
 })
