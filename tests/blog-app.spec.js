@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith } = require('./helper')
+const { loginWith, createBlog } = require('./helper')
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     await request.post('/api/testing/reset')
@@ -36,6 +36,27 @@ describe('Blog app', () => {
         await expect(errorDiv).toHaveCSS('border-style', 'solid')
         await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)')
     })
+  })
 
+  describe('When logged in', () => {
+
+    beforeEach(async ({page}) => {
+        await loginWith(page, 'aayushsinha0706', 'aayushsinha0706')
+    })
+
+    test('a new blog can be created' , async ({page}) => {
+        const title = 'This is an example blog'
+        const author = 'Aayush Sinha'
+        const url = 'https://example.com'
+        const username = 'aayushsinha0706'
+
+        await createBlog(page, title, author, url)
+
+        const message = await page.getByTestId('message')
+        await expect(message).toContainText(`A new blog ${title} by ${username} has been added`)
+
+        const blog = await page.getByTestId('blog')
+        await expect(blog).toContainText(title)
+    })
   })
 })

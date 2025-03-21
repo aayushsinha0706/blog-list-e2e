@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "record:test": "npx playwright codegen http://localhost:5173/"
   },
   "repository": {
     "type": "git",
