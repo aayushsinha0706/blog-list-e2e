@@ -10,6 +10,13 @@ describe('Blog app', () => {
             password: 'aayushsinha0706'
         }
     })
+    await request.post('/api/users',{
+        data: {
+            name: 'Some Other Person',
+            username: 'someotherperson',
+            password: 'someotherperson'
+        }
+    })
     await page.goto('/')
   })
 
@@ -78,6 +85,16 @@ describe('Blog app', () => {
             page.on('dialog', dialog => dialog.accept())
             await page.getByRole('button', { name: 'remove' }).click()
             await expect(page.getByTestId('blog')).not.toBeVisible()
+        })
+
+        test('test remove button visible only to owner', async ({page}) => {
+            await page.getByRole('button', { name: 'view' }).click()
+            await expect(page.getByRole('button', { name: 'remove' })).toBeVisible()
+
+            await page.getByRole('button', { name: 'logout' }).click()
+            await loginWith(page,'someotherperson','someotherperson')
+            await page.getByRole('button', { name: 'view' }).click()
+            await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
         })
     })
 
