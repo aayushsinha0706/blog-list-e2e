@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith, createBlog } = require('./helper')
+const { loginWith, createBlog, likeBlog } = require('./helper')
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     await request.post('/api/testing/reset')
@@ -95,6 +95,32 @@ describe('Blog app', () => {
             await loginWith(page,'someotherperson','someotherperson')
             await page.getByRole('button', { name: 'view' }).click()
             await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
+        })
+    })
+
+    describe('multiple blogs have been created', () => {
+        beforeEach(async ({page}) => {
+            await createBlog(page, 'This is an example blog', 'Aayush Sinha', 'https://example.com')
+            await createBlog(page, 'Another example blog', 'Aayush Sinha', 'https://anotherexample.com')
+            await createBlog(page, 'Third example blog', 'Aayush Sinha', 'https://thirdexampleblog.com')
+        })
+
+        test('test blogs ordered by likes descending', async ({page}) => {
+            await likeBlog(page, 'This is an example blog',3)
+            await likeBlog(page, 'Another example blog',5)
+            await likeBlog(page, 'Third example blog',2)
+
+            const firstBlog = await page.getByTestId('blog').first()
+            await expect(firstBlog).toContainText('Another example blog')
+            await expect(firstBlog).toContainText('likes: 5like')
+
+            const secondBlog = await page.getByTestId('blog').nth(1)
+            await expect(secondBlog).toContainText('This is an example blog')
+            await expect(secondBlog).toContainText('likes: 3like')
+
+            const thirdBlog = await page.getByTestId('blog').nth(2)
+            await expect(thirdBlog).toContainText('Third example blog')
+            await expect(thirdBlog).toContainText('likes: 2like')
         })
     })
 
